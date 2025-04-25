@@ -1,0 +1,3 @@
+ru-tinkoff-1-mnt
+ru-tinkoff-mobile-1-mnt
+TCSBANK-MNT

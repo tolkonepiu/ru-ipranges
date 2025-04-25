@@ -1,0 +1,35 @@
+name: Update subnets
+
+on:
+  push:
+    branches:
+      - main
+  workflow_dispatch:
+  schedule:
+    - cron: "0 0 * * *" # Runs daily at midnight UTC
+
+jobs:
+  fetch-subnets:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: ⤵️ Checkout repository
+        uses: actions/checkout@v3
+
+      - name: 🔄 Update ASNs
+        env:
+          BASE_DIR: ${{ github.workspace }}
+        run: |
+          bash .github/scripts/fetch_asns.sh
+
+      - name: 🔄 Update subnets
+        env:
+          BASE_DIR: ${{ github.workspace }}
+        run: |
+          bash .github/scripts/fetch_subnets.sh
+          bash .github/scripts/aggregate_subnets.sh
+
+      - name: 📤 Commit and push changes
+        uses: EndBug/add-and-commit@v9
+        with:
+          message: "Update IPv4 and IPv6 subnets"
