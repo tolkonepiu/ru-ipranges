@@ -8,10 +8,13 @@ fetch_subnets() {
 
     echo "Fetching subnets for ASN: $asn ($(basename "$asn_dir"))" >&2
 
-    if ! whois -h whois.radb.net -- "-i origin $asn"; then
+    local whois_output
+    if ! whois_output=$(whois -h whois.radb.net -- "-i origin $asn"); then
         echo "Error: Failed to fetch data for ASN: $asn" >&2
         exit 1
-    fi | grep "^route" | awk '{print $2}'
+    fi
+    
+    awk '/^route/ {print $2}' <<< "$whois_output"
 }
 
 process_asn_file() {

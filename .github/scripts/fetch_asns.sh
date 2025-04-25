@@ -8,10 +8,12 @@ fetch_asn() {
 
     echo "Fetching ASNs for mnt-by: $mnt_by ($(basename "$mnt_by_dir"))" >&2
 
-    if ! whois -h whois.radb.net -- "-i mnt-by $mnt_by"; then
+    local whois_output
+    if ! whois_output=$(whois -h whois.radb.net -- "-i mnt-by $mnt_by"); then
         echo "Error: Failed to fetch data for mnt-by: $mnt_by" >&2
         exit 1
-    fi | awk '/^origin:/ {print $2}'
+    fi
+    awk '/^origin:/ {print $2}' <<< "$whois_output"
 }
 
 process_mnt_by_file() {
