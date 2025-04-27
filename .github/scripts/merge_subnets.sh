@@ -5,7 +5,7 @@ set -euo pipefail
 BASE_DIR=${BASE_DIR:-$(realpath "$(dirname "$0")/../../")}
 
 VENV_DIR="${BASE_DIR}/.github/scripts/merge/venv"
-MERGE_SCRIPT="${BASE_DIR}/.github/scripts/merge/merge.py"
+MERGE_SCRIPT_PATH="${BASE_DIR}/.github/scripts/merge/"
 
 if [ ! -d "$VENV_DIR" ]; then
     echo "Setting up Python virtual environment..."
@@ -13,7 +13,7 @@ if [ ! -d "$VENV_DIR" ]; then
     # shellcheck disable=SC1091
     source "$VENV_DIR/bin/activate"
     pip install --upgrade pip
-    pip install netaddr
+    pip install -r "$MERGE_SCRIPT_PATH/requirements.txt"
     deactivate
 fi
 
@@ -26,7 +26,7 @@ find "$BASE_DIR" -type f \( -name "ipv4*.txt" -o -name "ipv6*.txt" \) | while re
     fi
 
     merged_file="${file%.txt}-merged.txt"
-    python3 "$MERGE_SCRIPT" --source "$file" >"$merged_file"
+    python3 "$MERGE_SCRIPT_PATH/merge.py" --source "$file" >"$merged_file"
 done
 
 deactivate
