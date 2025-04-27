@@ -7,7 +7,9 @@ This repository contains a list of IPv4 and IPv6 subnets for popular Russian res
 - Each folder corresponds to a specific resource (e.g., `ya.ru`, `vk.com`, `rt.ru`).
 - Subnets are divided into `ipv4.txt` and `ipv6.txt` files for each resource.
 - `asn.txt` files contain the Autonomous System Numbers (ASNs) associated with the resource.
+- `ipv4-merged.txt` and `ipv6-merged.txt` contain deduplicated and aggregated IPv4 and IPv6 subnets for each resource.
 - `ipv4-all.txt` and `ipv6-all.txt` contain all IPv4 and IPv6 addresses from all resources combined.
+- `ipv4-all-merged.txt` and `ipv6-all-merged.txt` contain deduplicated and aggregated IPv4 and IPv6 subnets from all resources.
 
 ## Automation
 

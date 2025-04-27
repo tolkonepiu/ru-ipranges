@@ -32,7 +32,8 @@ process_asn_file() {
     while read -r asn; do
         [[ -z $asn ]] && continue
 
-        local whois_result=$(fetch_subnets "$asn" "$asn_dir")
+        local whois_result
+        whois_result=$(fetch_subnets "$asn" "$asn_dir")
 
         grep -v ':' <<<"$whois_result" >>"$ipv4_tmp" || true
         grep ':' <<<"$whois_result" >>"$ipv6_tmp" || true
