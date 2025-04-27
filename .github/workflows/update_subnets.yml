@@ -9,7 +9,7 @@ on:
     - cron: "0 0 * * *" # Runs daily at midnight UTC
 
 jobs:
-  fetch-subnets:
+  update-subnets:
     runs-on: ubuntu-latest
 
     steps:
@@ -29,7 +29,16 @@ jobs:
           bash .github/scripts/fetch_subnets.sh
           bash .github/scripts/aggregate_subnets.sh
 
+      - name: 🧩 Merge subnets
+        env:
+          BASE_DIR: ${{ github.workspace }}
+        run: |
+          bash .github/scripts/merge_subnets.sh
+
       - name: 📤 Commit and push changes
         uses: EndBug/add-and-commit@v9
         with:
           message: "Update IPv4 and IPv6 subnets"
+          committer_name: GitHub Actions
+          committer_email: 41898282+github-actions[bot]@users.noreply.github.com
+          commit: --signoff

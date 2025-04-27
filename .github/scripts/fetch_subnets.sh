@@ -13,8 +13,8 @@ fetch_subnets() {
         echo "Error: Failed to fetch data for ASN: $asn" >&2
         exit 1
     fi
-    
-    awk '/^route/ {print $2}' <<< "$whois_output"
+
+    awk '/^route/ {print $2}' <<<"$whois_output"
 }
 
 process_asn_file() {
@@ -34,19 +34,20 @@ process_asn_file() {
 
         local whois_result=$(fetch_subnets "$asn" "$asn_dir")
 
-        grep -v ':' <<< "$whois_result" >> "$ipv4_tmp" || true
-        grep ':' <<< "$whois_result" >> "$ipv6_tmp" || true
+        grep -v ':' <<<"$whois_result" >>"$ipv4_tmp" || true
+        grep ':' <<<"$whois_result" >>"$ipv6_tmp" || true
     done <"$asn_file"
 
-    sort -u -t. -k1,1n -k2,2n -k3,3n -k4,4n "$ipv4_tmp" > "$ipv4_file"
-    sort -u -V "$ipv6_tmp" > "$ipv6_file"
+    sort -u -t. -k1,1n -k2,2n -k3,3n -k4,4n "$ipv4_tmp" >"$ipv4_file"
+    sort -u -V "$ipv6_tmp" >"$ipv6_file"
 }
 
 export -f fetch_subnets process_asn_file
 
-# Main
 BASE_DIR=${BASE_DIR:-$(realpath "$(dirname "$0")/../../")}
 
-find "$BASE_DIR" -name "asn.txt" -print0 | xargs -0 -n1 -P4 bash -c 'process_asn_file "$0"'
+# shellcheck disable=SC2016
+find "$BASE_DIR" -name "asn.txt" -print0 |
+    xargs -0 -n1 -P4 bash -c 'process_asn_file "$0"'
 
 echo "Script execution completed."

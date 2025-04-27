@@ -13,7 +13,7 @@ fetch_asn() {
         echo "Error: Failed to fetch data for mnt-by: $mnt_by" >&2
         exit 1
     fi
-    awk '/^origin:/ {print $2}' <<< "$whois_output"
+    awk '/^origin:/ {print $2}' <<<"$whois_output"
 }
 
 process_mnt_by_file() {
@@ -29,16 +29,18 @@ process_mnt_by_file() {
     while read -r mnt_by || [[ -n $mnt_by ]]; do
         [[ -z $mnt_by ]] && continue
 
-        fetch_asn "$mnt_by" "$mnt_by_dir" >> "$asn_tmp"
+        fetch_asn "$mnt_by" "$mnt_by_dir" >>"$asn_tmp"
     done <"$mnt_by_file"
 
-    sort -u -V "$asn_tmp" > "$asn_file"
+    sort -u -V "$asn_tmp" >"$asn_file"
 }
 
 export -f fetch_asn process_mnt_by_file
 
 BASE_DIR=${BASE_DIR:-$(realpath "$(dirname "$0")/../../")}
 
-find "$BASE_DIR" -name "mnt-by.txt" -print0 | xargs -0 -n1 -P4 bash -c 'process_mnt_by_file "$0"'
+# shellcheck disable=SC2016
+find "$BASE_DIR" -name "mnt-by.txt" -print0 |
+    xargs -0 -n1 -P4 bash -c 'process_mnt_by_file "$0"'
 
 echo "Script execution completed."
