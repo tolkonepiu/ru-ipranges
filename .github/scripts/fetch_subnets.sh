@@ -9,7 +9,7 @@ fetch_subnets() {
     echo "Fetching subnets for ASN: $asn ($(basename "$asn_dir"))" >&2
 
     local whois_output
-    if ! whois_output=$(echo "-i origin $asn" | nc whois.bgp.net.br 43); then
+    if ! whois_output=$(echo "-i origin $asn" | nc riswhois.ripe.net 43); then
         echo "Error: Failed to fetch data for ASN: $asn" >&2
         exit 1
     fi
