@@ -39,6 +39,4 @@ jobs:
         uses: EndBug/add-and-commit@v9
         with:
           message: "Update IPv4 and IPv6 subnets"
-          committer_name: GitHub Actions
-          committer_email: 41898282+github-actions[bot]@users.noreply.github.com
-          commit: --signoff
+          default_author: github_actions
