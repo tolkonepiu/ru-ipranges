@@ -1,12 +1,13 @@
-#!/bin/bash
+#!/usr/bin/env bash
+set -Eeuo pipefail
 
-set -euo pipefail
+source "$(dirname "${0}")/lib/common.sh"
 
 fetch_asn() {
 	local mnt_by=$1
 	local mnt_by_dir=$2
 
-	echo "Fetching ASNs for mnt-by: $mnt_by ($(basename "$mnt_by_dir"))" >&2
+	log info "Fetching ASNs for mnt-by: $mnt_by ($(basename "$mnt_by_dir"))" >&2
 
 	local whois_servers=(
 		"riswhois.ripe.net"
@@ -16,27 +17,19 @@ fetch_asn() {
 		"whois.bgp.net.br"
 	)
 
-	local all_asns
-	all_asns=$(mktemp)
+	local asns
+	asns=$(mktemp)
 
 	for server in "${whois_servers[@]}"; do
 		local whois_output
 		if whois_output=$(whois -h "$server" -- "-i mnt-by $mnt_by" 2>/dev/null); then
-			awk '/^origin:/ {print $2}' <<<"$whois_output" >>"$all_asns"
+			awk '/^origin:/ {print $2}' <<<"$whois_output" >>"$asns"
 		else
-			echo "Error: Failed to fetch data from $server for mnt-by: $mnt_by" >&2
-			exit 1
+			log error "Failed to fetch data from $server for mnt-by: $mnt_by"
 		fi
 	done
 
-	if [[ -s "$all_asns" ]]; then
-		sort -u -V "$all_asns"
-		rm -f "$all_asns"
-	else
-		echo "Error: No data found for mnt-by: $mnt_by from any server" >&2
-		rm -f "$all_asns"
-		exit 1
-	fi
+	sort -u -V "$asns"
 }
 
 process_mnt_by_file() {
@@ -60,10 +53,8 @@ process_mnt_by_file() {
 
 export -f fetch_asn process_mnt_by_file
 
-BASE_DIR=${BASE_DIR:-$(realpath "$(dirname "$0")/../../")}
-
 # shellcheck disable=SC2016
-find "$BASE_DIR" -name "mnt-by.txt" -print0 |
+find "$ROOT_DIR" -name "mnt-by.txt" -print0 |
 	xargs -0 -n1 -P4 bash -c 'process_mnt_by_file "$0"'
 
-echo "Script execution completed."
+log info "Script execution completed."

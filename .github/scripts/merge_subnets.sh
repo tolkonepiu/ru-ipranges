@@ -1,14 +1,13 @@
-#!/bin/bash
+#!/usr/bin/env bash
+set -Eeuo pipefail
 
-set -euo pipefail
+source "$(dirname "${0}")/lib/common.sh"
 
-BASE_DIR=${BASE_DIR:-$(realpath "$(dirname "$0")/../../")}
-
-VENV_DIR="${BASE_DIR}/.github/scripts/merge/venv"
-MERGE_SCRIPT_PATH="${BASE_DIR}/.github/scripts/merge/"
+VENV_DIR="${ROOT_DIR}/.github/scripts/merge/venv"
+MERGE_SCRIPT_PATH="${ROOT_DIR}/.github/scripts/merge/"
 
 if [ ! -d "$VENV_DIR" ]; then
-	echo "Setting up Python virtual environment..."
+	log info "Setting up Python virtual environment..."
 	python3 -m venv "$VENV_DIR"
 	# shellcheck disable=SC1091
 	source "$VENV_DIR/bin/activate"
@@ -20,7 +19,7 @@ fi
 # shellcheck disable=SC1091
 source "$VENV_DIR/bin/activate"
 
-find "$BASE_DIR" -type f \( -name "ipv4*.txt" -o -name "ipv6*.txt" \) | while read -r file; do
+find "$ROOT_DIR" -type f \( -name "ipv4*.txt" -o -name "ipv6*.txt" \) | while read -r file; do
 	if [[ "$file" == *-merged.txt ]]; then
 		continue
 	fi
@@ -31,4 +30,4 @@ done
 
 deactivate
 
-echo "All files processed successfully."
+log info "All files processed successfully."

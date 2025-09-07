@@ -1,19 +1,22 @@
-#!/bin/bash
+#!/usr/bin/env bash
+set -Eeuo pipefail
 
-set -euo pipefail
+source "$(dirname "${0}")/lib/common.sh"
 
-BASE_DIR=${BASE_DIR:-$(realpath "$(dirname "$0")/../../")}
-IPV4_ALL="${BASE_DIR}/ipv4-all.txt"
-IPV6_ALL="${BASE_DIR}/ipv6-all.txt"
+ipv4_tmp=$(mktemp)
+ipv6_tmp=$(mktemp)
 
-: >"$IPV4_ALL"
-: >"$IPV6_ALL"
+ipv4_all="${ROOT_DIR}/ipv4-all.txt"
+ipv6_all="${ROOT_DIR}/ipv6-all.txt"
 
-find "$BASE_DIR" -type f -name "ipv4.txt" -print0 | xargs -0 cat >>"$IPV4_ALL"
+: >"$ipv4_all"
+: >"$ipv6_all"
 
-find "$BASE_DIR" -type f -name "ipv6.txt" -print0 | xargs -0 cat >>"$IPV6_ALL"
+find "$ROOT_DIR" -type f -name "ipv4.txt" -print0 | xargs -0 cat >>"$ipv4_tmp"
 
-sort -t . -k1,1n -k2,2n -k3,3n -k4,4n -u "$IPV4_ALL" -o "$IPV4_ALL"
-sort -u -V "$IPV6_ALL" -o "$IPV6_ALL"
+find "$ROOT_DIR" -type f -name "ipv6.txt" -print0 | xargs -0 cat >>"$ipv6_tmp"
 
-echo "Aggregation completed."
+sort_ipv4 "$ipv4_tmp" "$ipv4_all"
+sort_ipv6 "$ipv6_tmp" "$ipv6_all"
+
+log info "Aggregation completed."
