@@ -9,7 +9,7 @@ fetch_subnets() {
 	echo "Fetching subnets for ASN: $asn ($(basename "$asn_dir"))" >&2
 
 	local whois_servers=(
-		"riswhois.ripe.net"
+		# "riswhois.ripe.net"
 		"whois.radb.net"
 		"rr.ntt.net"
 		"whois.rogerstelecom.net"
