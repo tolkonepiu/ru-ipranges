@@ -8,45 +8,15 @@ fetch_subnets() {
 
 	echo "Fetching subnets for ASN: $asn ($(basename "$asn_dir"))" >&2
 
-	local whois_servers=(
-		# "riswhois.ripe.net"
-		"whois.radb.net"
-		"rr.ntt.net"
-		"whois.rogerstelecom.net"
-		"whois.bgp.net.br"
-	)
-
+	local base_url="https://raw.githubusercontent.com/ipverse/asn-ip/master/as/${asn#AS}"
 	local all_subnets
 	all_subnets=$(mktemp)
 
-	for server in "${whois_servers[@]}"; do
-		local whois_output
-		if whois_output=$(whois -h "$server" -- "-i origin $asn" 2>/dev/null); then
-			awk '
-            /^route/ {
-                ip = $2
-                if (ip ~ /\//) {
-                    print ip
-                } else if (ip ~ /:/) {
-                    print ip "/128"  # IPv6
-                } else {
-                    print ip "/32"   # IPv4
-                }
-            }' <<<"$whois_output" >>"$all_subnets"
-		else
-			echo "Error: Failed to fetch data from $server for ASN: $asn" >&2
-			exit 1
-		fi
-	done
+	curl -s -f "$base_url/ipv4-aggregated.txt" | grep -v '^#' | grep -v '^$' >>"$all_subnets" 2>/dev/null
+	curl -s -f "$base_url/ipv6-aggregated.txt" | grep -v '^#' | grep -v '^$' >>"$all_subnets" 2>/dev/null
 
-	if [[ -s "$all_subnets" ]]; then
-		sort -u -V "$all_subnets"
-		rm -f "$all_subnets"
-	else
-		echo "Error: No data found for ASN: $asn from any server" >&2
-		rm -f "$all_subnets"
-		exit 1
-	fi
+	grep -v '^$' "$all_subnets" | sort -u -V
+	rm -f "$all_subnets"
 }
 
 process_asn_file() {
@@ -71,8 +41,8 @@ process_asn_file() {
 		grep ':' <<<"$whois_result" >>"$ipv6_tmp" || true
 	done <"$asn_file"
 
-	sort -u -t. -k1,1n -k2,2n -k3,3n -k4,4n "$ipv4_tmp" >"$ipv4_file"
-	sort -u -V "$ipv6_tmp" >"$ipv6_file"
+	grep -v '^$' "$ipv4_tmp" | sort -u -t. -k1,1n -k2,2n -k3,3n -k4,4n >"$ipv4_file"
+	grep -v '^$' "$ipv6_tmp" | sort -u -V >"$ipv6_file"
 }
 
 export -f fetch_subnets process_asn_file

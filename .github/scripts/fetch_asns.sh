@@ -9,7 +9,7 @@ fetch_asn() {
 	echo "Fetching ASNs for mnt-by: $mnt_by ($(basename "$mnt_by_dir"))" >&2
 
 	local whois_servers=(
-		# "riswhois.ripe.net"
+		"riswhois.ripe.net"
 		"whois.radb.net"
 		"rr.ntt.net"
 		"whois.rogerstelecom.net"
