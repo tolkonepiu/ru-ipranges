@@ -42,7 +42,20 @@ process_asn_file() {
 	done <"$asn_file"
 
 	grep -v '^$' "$ipv4_tmp" | sort -u -t. -k1,1n -k2,2n -k3,3n -k4,4n >"$ipv4_file"
-	grep -v '^$' "$ipv6_tmp" | sort -u -V >"$ipv6_file"
+	grep -v '^$' "$ipv6_tmp" |
+		python3 -c '
+import sys, ipaddress
+
+for s in sys.stdin:
+    s = s.strip()
+    if not s:
+        continue
+    net = ipaddress.ip_network(s, strict=False)
+    print(net.network_address.exploded, net.prefixlen, s)
+' |
+		sort -k1,1 -k2,2n |
+		awk '{print $3}' \
+			>"$ipv6_file"
 }
 
 export -f fetch_subnets process_asn_file
