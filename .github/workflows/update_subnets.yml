@@ -16,6 +16,11 @@ jobs:
       - name: ⤵️ Checkout repository
         uses: actions/checkout@v5
 
+      - name: 🏗️ Setup dependencies
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y whois
+
       - name: 🔄 Update ASNs
         env:
           BASE_DIR: ${{ github.workspace }}
