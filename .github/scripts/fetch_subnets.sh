@@ -43,8 +43,8 @@ process_asn_file() {
 		fi
 	done <"$asn_file"
 
-	sort_ipv4 "$ipv4_tmp" "$ipv4_file"
-	sort_ipv6 "$ipv6_tmp" "$ipv6_file"
+	sort_cidrs "$ipv4_tmp" "$ipv4_file"
+	sort_cidrs "$ipv6_tmp" "$ipv6_file"
 }
 
 export -f fetch_subnets process_asn_file

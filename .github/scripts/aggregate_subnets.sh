@@ -16,7 +16,7 @@ find "$ROOT_DIR" -type f -name "ipv4.txt" -print0 | xargs -0 cat >>"$ipv4_tmp"
 
 find "$ROOT_DIR" -type f -name "ipv6.txt" -print0 | xargs -0 cat >>"$ipv6_tmp"
 
-sort_ipv4 "$ipv4_tmp" "$ipv4_all"
-sort_ipv6 "$ipv6_tmp" "$ipv6_all"
+sort_cidrs "$ipv4_tmp" "$ipv4_all"
+sort_cidrs "$ipv6_tmp" "$ipv6_all"
 
 log info "Aggregation completed."

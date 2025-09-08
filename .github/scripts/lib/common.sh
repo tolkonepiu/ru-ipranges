@@ -61,7 +61,7 @@ function log() {
 
 export -f log
 
-sort_ipv4() {
+sort_cidrs() {
 	local input_file="$1"
 	local output_file="$2"
 
@@ -70,34 +70,18 @@ sort_ipv4() {
 		return 1
 	fi
 
-	sort -t . -k1,1n -k2,2n -k3,3n -k4,4n -u "$input_file" -o "$output_file"
-}
-
-export -f sort_ipv4
-
-sort_ipv6() {
-	local input_file="$1"
-	local output_file="$2"
-
-	if [[ -z "$input_file" || -z "$output_file" ]]; then
-		echo "Usage: sort_ipv6 <input_file> <output_file>" >&2
-		return 1
-	fi
-
 	cat "$input_file" |
 		python3 -c '
 import sys, ipaddress
-
-for s in sys.stdin:
-    s = s.strip()
-    if not s:
-        continue
-    net = ipaddress.ip_network(s, strict=False)
-    print(net.network_address.exploded, net.prefixlen, s)
-' |
-		sort -k1,1 -k2,2n |
-		awk '{print $3}' \
-			>"$output_file"
+nets = []
+for line in sys.stdin:
+    try:
+        nets.append(ipaddress.ip_network(line.strip(), strict=False))
+    except ValueError:
+        pass
+for net in sorted(set(nets), key=lambda n: (n.version, int(n.network_address), n.prefixlen)):
+    print(net)
+' >"$output_file"
 }
 
-export -f sort_ipv6
+export -f sort_cidrs
