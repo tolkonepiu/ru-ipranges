@@ -14,7 +14,7 @@ fetch_asn() {
 		"whois.radb.net"
 		"rr.ntt.net"
 		"whois.rogerstelecom.net"
-		"whois.bgp.net.br"
+		# "whois.bgp.net.br"
 	)
 
 	local asns
